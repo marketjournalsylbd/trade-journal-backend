@@ -5,6 +5,8 @@ import models
 import schemas
 import crud
 import csv_parser
+from database import engine, SessionLocal   # ✅ Missing import fixed
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Single-user Trade Journal API")
