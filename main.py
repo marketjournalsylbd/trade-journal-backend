@@ -31,11 +31,8 @@ def get_db():
 # ---------------------------
 @app.post("/api/add-trade")
 def add_trade(trade: schemas.TradeCreate, db: Session = Depends(get_db)):
-    try:
-        created = crud.create_trade(db, trade)
-        return {"status": "success", "trade_id": created.id}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    created = crud.create_trade(db, trade)
+    return {"status": "success", "trade_id": created.id}
 
 
 # ---------------------------
