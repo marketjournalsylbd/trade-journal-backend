@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from . import models, schemas, crud, csv_parser
+import models, schemas, crud, csv_parser
 from .database import engine, SessionLocal
 
 models.Base.metadata.create_all(bind=engine)
