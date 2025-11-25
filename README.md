@@ -1,0 +1,2 @@
+# trade-journal-backend
+personal
