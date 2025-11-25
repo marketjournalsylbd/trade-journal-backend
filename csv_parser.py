@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List
-from .schemas import TradeCreate
+from schemas import TradeCreate
 from datetime import datetime
 
 # A flexible CSV parser that attempts to map common column names to our schema.
