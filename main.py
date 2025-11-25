@@ -1,9 +1,10 @@
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-import models, schemas, crud, csv_parser
-import database import engine, SessionLocal
-
+import models
+import schemas
+import crud
+import csv_parser
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Single-user Trade Journal API")
