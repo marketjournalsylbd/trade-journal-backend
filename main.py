@@ -67,3 +67,14 @@ def list_trades(db: Session = Depends(get_db)):
 @app.get('/api/summary')
 def get_summary(db: Session = Depends(get_db)):
     return crud.get_summary(db)
+# Update trade (PUT)
+@app.put("/api/trades/{trade_id}")
+def update_trade(trade_id: int, payload: schemas.TradeCreate, db: Session = Depends(get_db)):
+    # find trade, update fields, recalc pnl similarly to create_trade, commit, return updated
+    pass
+
+# Delete trade
+@app.delete("/api/trades/{trade_id}")
+def delete_trade(trade_id: int, db: Session = Depends(get_db)):
+    # find trade, delete, commit
+    pass
