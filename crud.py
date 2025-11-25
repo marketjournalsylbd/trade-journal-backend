@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from import models, schemas
 from datetime import datetime
 
 def create_trade(db: Session, trade: schemas.TradeCreate):
