@@ -16,7 +16,7 @@ app = FastAPI(title="Single-user Trade Journal API")
 # ---------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],     # *** FIX: allow all for deploy ***
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -96,12 +96,19 @@ def update_trade(trade_id: int, payload: schemas.TradeCreate, db: Session = Depe
     trade.entry_price = payload.entry_price
     trade.exit_price = payload.exit_price
     trade.size = payload.size
+    trade.direction = payload.direction        # ✅ added
     trade.fees = payload.fees
     trade.strategy = payload.strategy
     trade.notes = payload.notes
 
-    # Recalculate pnl
-    trade.pnl = (payload.exit_price - payload.entry_price) * payload.size - (payload.fees or 0.0)
+    # Direction-based PnL
+    if payload.direction == "buy":
+        pnl = (payload.exit_price - payload.entry_price) * payload.size
+    else:  # sell
+        pnl = (payload.entry_price - payload.exit_price) * payload.size
+
+    pnl -= (payload.fees or 0.0)
+    trade.pnl = pnl
 
     db.commit()
     db.refresh(trade)
