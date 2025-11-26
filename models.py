@@ -4,8 +4,12 @@ from .database import Base
 
 class Trade(Base):
     __tablename__ = "trades"
+
     id = Column(Integer, primary_key=True, index=True)
     symbol = Column(String, index=True)
+
+    direction = Column(String, default="buy")   # <-- NEW (buy / sell)
+
     entry_time = Column(DateTime, nullable=True)
     exit_time = Column(DateTime, nullable=True)
     entry_price = Column(Float)
@@ -13,6 +17,8 @@ class Trade(Base):
     size = Column(Float)
     fees = Column(Float, default=0.0)
     pnl = Column(Float)
+
     strategy = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
+
     created_at = Column(DateTime, server_default=func.now())
