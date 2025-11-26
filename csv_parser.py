@@ -13,7 +13,8 @@ COLUMN_MAP = {
     'size': ['size', 'quantity', 'qty', 'volume'],
     'fees': ['fees', 'commission'],
     'strategy': ['strategy', 'tag'],
-    'notes': ['notes', 'comment']
+    'notes': ['notes', 'comment'],
+    'direction': ['direction', 'side', 'position', 'trade_type']   # <-- NEW
 }
 
 def _find_col(df_cols, candidates):
@@ -30,23 +31,37 @@ def _find_col(df_cols, candidates):
 def parse_csv_bytes(content: bytes) -> List[TradeCreate]:
     df = pd.read_csv(pd.io.common.BytesIO(content))
     cols = df.columns.tolist()
+
     mapped = {}
     for key, candidates in COLUMN_MAP.items():
         col = _find_col(cols, candidates)
         if col:
             mapped[key] = col
+
     trades = []
     for _, row in df.iterrows():
         try:
             entry_time = pd.to_datetime(row[mapped.get('entry_time')]) if mapped.get('entry_time') else None
             exit_time = pd.to_datetime(row[mapped.get('exit_time')]) if mapped.get('exit_time') else None
+
             entry_price = float(row[mapped.get('entry_price')])
             exit_price = float(row[mapped.get('exit_price')])
             size = float(row[mapped.get('size')]) if mapped.get('size') else 1.0
             fees = float(row[mapped.get('fees')]) if mapped.get('fees') else 0.0
+
             symbol = str(row[mapped.get('symbol')]) if mapped.get('symbol') else 'UNKNOWN'
             strategy = str(row[mapped.get('strategy')]) if mapped.get('strategy') else None
             notes = str(row[mapped.get('notes')]) if mapped.get('notes') else None
+
+            # 🔥 NEW — detect BUY/SELL
+            direction = "buy"
+            if mapped.get("direction"):
+                val = str(row[mapped['direction']]).strip().lower()
+                if val in ["sell", "short", "s"]:
+                    direction = "sell"
+                else:
+                    direction = "buy"
+
             trade = TradeCreate(
                 symbol=symbol,
                 entry_time=entry_time.to_pydatetime() if entry_time is not None else None,
@@ -54,12 +69,15 @@ def parse_csv_bytes(content: bytes) -> List[TradeCreate]:
                 entry_price=entry_price,
                 exit_price=exit_price,
                 size=size,
+                direction=direction,   # <-- NEW
                 fees=fees,
                 strategy=strategy,
                 notes=notes,
             )
+
             trades.append(trade)
-        except Exception as e:
-            # skip row on error — we could collect errors and return them
+
+        except Exception:
             continue
+
     return trades
