@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Literal
 from datetime import datetime
 
 class TradeBase(BaseModel):
@@ -7,6 +7,7 @@ class TradeBase(BaseModel):
     entry_price: float
     exit_price: float
     size: float
+    direction: Literal["buy", "sell"]         # ✅ New field added
     fees: Optional[float] = 0.0
     strategy: Optional[str] = None
     notes: Optional[str] = None
