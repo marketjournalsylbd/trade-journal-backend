@@ -3,7 +3,14 @@ from . import models, schemas
 from datetime import datetime
 
 def create_trade(db: Session, trade: schemas.TradeCreate):
-    pnl = (trade.exit_price - trade.entry_price) * trade.size - (trade.fees or 0.0)
+
+    # BUY trade → (exit - entry) × size - fees
+    # SELL trade → (entry - exit) × size - fees
+    if trade.direction == "buy":
+        pnl = (trade.exit_price - trade.entry_price) * trade.size - (trade.fees or 0.0)
+    else:  # sell
+        pnl = (trade.entry_price - trade.exit_price) * trade.size - (trade.fees or 0.0)
+
     db_trade = models.Trade(
         symbol=trade.symbol,
         entry_time=trade.entry_time,
@@ -11,18 +18,22 @@ def create_trade(db: Session, trade: schemas.TradeCreate):
         entry_price=trade.entry_price,
         exit_price=trade.exit_price,
         size=trade.size,
+        direction=trade.direction,     # <-- NEW (must save)
         fees=trade.fees or 0.0,
         pnl=pnl,
         strategy=trade.strategy,
         notes=trade.notes,
     )
+
     db.add(db_trade)
     db.commit()
     db.refresh(db_trade)
     return db_trade
 
+
 def get_all_trades(db: Session):
     return db.query(models.Trade).order_by(models.Trade.exit_time.asc()).all()
+
 
 def get_summary(db: Session):
     trades = get_all_trades(db)
